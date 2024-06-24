@@ -1,57 +1,77 @@
-# Instructions
+# Background
 
-## Part 1: Analyze and Explore the Climate Data
+The UK Food Standards Agency evaluates various establishments across the United Kingdom, and gives them a food hygiene rating. You've been contracted by the editors of a food magazine, Eat Safe, Love, to evaluate some of the ratings data in order to help their journalists and food critics decide where to focus future articles.
 
-In this section, use Python and SQLAlchemy to do a basic climate analysis and data exploration of your climate database. Specifically, use SQLAlchemy ORM queries, Pandas, and Matplotlib. Include the following:
-* SQLAlchemy create_engine() function to connect to your SQLite database.
-* SQLAlchemy automap_base() function to reflect your tables into classes, and then save references to the classes named station and measurement.
-* Link Python to the database by creating a SQLAlchemy session.
-* Perform a precipitation analysis and then a station analysis by completing the steps in the following two subsections.
+## Instructions
 
-## Precipitation Analysis
+## Part 1: Database and Jupyter Notebook Set Up
 
-1. Find the most recent date in the dataset.
-2. Using that date, get the previous 12 months of precipitation data by querying the previous 12 months of data.
-3. Select only the "date" and "prcp" values.
-4. Load the query results into a Pandas DataFrame. Explicitly set the column names.
-5. Sort the DataFrame values by "date".
-6. Plot the results by using the DataFrame plot method, as the following image shows:
+1. Import the data .json file from your Terminal. Name the database uk_food and the collection establishments. Copy the text you used to import your data from your Terminal to a markdown cell in your notebook.
+2. Within thr notebook, import the libraries needed: PyMongo and Pretty Print (pprint).
+3. Create an instance of the Mongo Client.
+4. Confirm that you created the database and loaded the data properly:
+   - List the databases you have in MongoDB. Confirm that uk_food is listed.
+   - List the collection(s) in the database to ensure that establishments is there.
+   - Find and display one document in the establishments collection using find_one and display with pprint.
+5. Assign the establishments collection to a variable to prepare the collection for use.
 
-![image](https://static.bc-edx.com/data/dl-1-2/m10/lms/img/precipitation.jpg)
+## Part 2: Update the Database
 
-7. Use Pandas to print the summary statistics for the precipitation data.
+The magazine editors have some requested modifications for the database before you can perform any queries or analysis for them. Make the following changes to the establishments collection:
+1. An exciting new halal restaurant just opened in Greenwich, but hasn't been rated yet. The magazine has asked you to include it in your analysis. Add the following information to the database:
+   {
+       "BusinessName":"Penang Flavours",
+       "BusinessType":"Restaurant/Cafe/Canteen",
+       "BusinessTypeID":"",
+       "AddressLine1":"Penang Flavours",
+       "AddressLine2":"146A Plumstead Rd",
+       "AddressLine3":"London",
+       "AddressLine4":"",
+       "PostCode":"SE18 7DY",
+       "Phone":"",
+       "LocalAuthorityCode":"511",
+       "LocalAuthorityName":"Greenwich",
+       "LocalAuthorityWebSite":"http://www.royalgreenwich.gov.uk",
+       "LocalAuthorityEmailAddress":"health@royalgreenwich.gov.uk",
+       "scores":{
+           "Hygiene":"",
+           "Structural":"",
+           "ConfidenceInManagement":""
+       },
+       "SchemeType":"FHRS",
+       "geocode":{
+           "longitude":"0.08384000",
+           "latitude":"51.49014200"
+       },
+       "RightToReply":"",
+       "Distance":4623.9723280747176,
+       "NewRatingPending":True
+   }
+2. Find the BusinessTypeID for "Restaurant/Cafe/Canteen" and return only the BusinessTypeID and BusinessType fields.
+3. Update the new restaurant with the BusinessTypeID you found.
+4. The magazine is not interested in any establishments in Dover, so check how many documents contain the Dover Local Authority. Then, remove any establishments within the Dover Local Authority from the database, and check the number of documents to ensure they were deleted.
+5. Some of the number values are stored as strings, when they should be stored as numbers.
+   1. Use update_many to convert latitude and longitude to decimal numbers.
+   2. Use update_many to convert RatingValue to integer numbers.
 
-## Station Analysis
+## Part 3: Exploratory Analysis
 
-1. Design a query to calculate the total number of stations in the dataset.
-2. Design a query to find the most-active stations (that is, the stations that have the most rows). Complete the following steps:
-   - List the stations and observation counts in descending order.
-   - Answer the following question: which station id has the greatest number of observations?
-3. Design a query that calculates the lowest, highest, and average temperatures that filters on the most-active station id found in the previous query.
-4. Design a query to get the previous 12 months of temperature observation (TOBS) data. Complete the following steps:
-   - Filter by the station that has the greatest number of observations.
-   - Query the previous 12 months of TOBS data for that station.
-   - Plot the results as a histogram with bins=12, as the following image shows:
+Eat Safe, Love has specific questions they want you to answer, which will help them find the locations they wish to visit and avoid.
 
-![image](https://static.bc-edx.com/data/dl-1-2/m10/lms/img/station-histogram.jpg)
+Some notes to be aware of while you are exploring the dataset:
+* RatingValue refers to the overall rating decided by the Food Authority and ranges from 1-5. The higher the value, the better the rating.
+   - Note: This field also includes non-numeric values such as 'Pass', where 'Pass' means that the establishment passed their inspection but isn't given a number rating. We will coerce non-numeric values to nulls during the database setup before converting ratings to integers.
+* The scores for Hygiene, Structural, and ConfidenceInManagement work in reverse. This means, the higher the value, the worse the establishment is in these areas.
 
-5. Close your session.
+Use the following questions to explore the database, and find the answers, so you can provide them to the magazine editors.
 
-## Part 2: Design Your Climate App
+Unless otherwise stated, for each question:
+* Use count_documents to display the number of documents contained in the result.
+* Display the first document in the results using pprint.
+* Convert the result to a Pandas DataFrame, print the number of rows in the DataFrame, and display the first 10 rows.
 
-Design a Flask API based on the queries that you just developed. Use Flask to create your routes as follows:
-1. /
-   - Start at the homepage.
-   - List all the available routes.
-2. /api/v1.0/precipitation
-   - Convert the query results from your precipitation analysis (i.e. retrieve only the last 12 months of data) to a dictionary using date as the key and prcp as the value.
-   - Return the JSON representation of your dictionary.
-3. /api/v1.0/stations
-   - Return a JSON list of stations from the dataset.
-4. /api/v1.0/tobs
-   - Query the dates and temperature observations of the most-active station for the previous year of data.
-   - Return a JSON list of temperature observations for the previous year.
-5. /api/v1.0/<start> and /api/v1.0/<start>/<end>
-   - Return a JSON list of the minimum temperature, the average temperature, and the maximum temperature for a specified start or start-end range.
-   - For a specified start, calculate TMIN, TAVG, and TMAX for all the dates greater than or equal to the start date.
-   - For a specified start date and end date, calculate TMIN, TAVG, and TMAX for the dates from the start date to the end date, inclusive.
+1. Which establishments have a hygiene score equal to 20?
+2. Which establishments in London have a RatingValue greater than or equal to 4? Use $regex as part of your search.
+3. What are the top 5 establishments with a RatingValue of 5, sorted by lowest hygiene score, nearest to the new restaurant added, "Penang Flavours"?
+4. How many establishments in each Local Authority area have a hygiene score of 0? Sort the results from highest to lowest, and print out the top ten local authority areas.
+
