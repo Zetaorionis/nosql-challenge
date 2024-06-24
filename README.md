@@ -17,7 +17,7 @@ In this section, use Python and SQLAlchemy to do a basic climate analysis and da
 5. Sort the DataFrame values by "date".
 6. Plot the results by using the DataFrame plot method, as the following image shows:
 
-[image](https://static.bc-edx.com/data/dl-1-2/m10/lms/img/precipitation.jpg)
+![image](https://static.bc-edx.com/data/dl-1-2/m10/lms/img/precipitation.jpg)
 
 7. Use Pandas to print the summary statistics for the precipitation data.
 
@@ -33,7 +33,7 @@ In this section, use Python and SQLAlchemy to do a basic climate analysis and da
    - Query the previous 12 months of TOBS data for that station.
    - Plot the results as a histogram with bins=12, as the following image shows:
 
-[image](https://static.bc-edx.com/data/dl-1-2/m10/lms/img/station-histogram.jpg)
+![image](https://static.bc-edx.com/data/dl-1-2/m10/lms/img/station-histogram.jpg)
 
 5. Close your session.
 
